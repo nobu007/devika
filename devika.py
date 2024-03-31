@@ -100,6 +100,10 @@ def handle_message(data):
             else:
                 thread = Thread(target=lambda: agent.subsequent_execute(message, project_name))
                 thread.start()
+                
+    # 受信したイベントを他のクライアントにブロードキャスト
+    # socketio.emit("user-message", data, broadcast=True)
+    emit_agent("user-message", data)
 
 
 @app.route("/api/is-agent-active", methods=["POST"])

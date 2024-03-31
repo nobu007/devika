@@ -21,7 +21,7 @@ services:
     networks:
       - devika-subnetwork
 
-  devika-backend-engine:
+  devika-backend:
     container_name: devika-backend
     build:
       context: .
@@ -38,7 +38,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "apt install curl && curl -f http://localhost:1337/ || exit 1",
+          "echo 'healthcheck' && apt install curl && curl -f http://localhost:1337/ || exit 1",
         ]
       interval: 5s
       timeout: 30s
@@ -46,11 +46,13 @@ services:
       start_period: 30s
     volumes:
       - devika-backend-dbstore:/home/nonroot/devika/db
-      - ./out:/app/out
+      - ./data:/app/data
+      - ./scripts:/app/scripts
     networks:
       - devika-subnetwork
+    entrypoint: ["/app/scripts/devika/startup_devica_backend.sh"]
 
-  devika-frontend-app:
+  devika-frontend:
     container_name: devika-frontend
     build:
       context: .
@@ -58,7 +60,7 @@ services:
       args:
         - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     depends_on:
-      - devika-backend-engine
+      - devika-backend
     expose:
       - 3000
     ports:
@@ -70,23 +72,16 @@ services:
 
   devika-support:
     container_name: devika-support
-    image: devika_devika-frontend-app:latest
+    image: devika_devika-backend:latest
     depends_on:
-      - devika-frontend-app
+      - devika-backend
+      - devika-frontend
     volumes:
       - ./scripts:/app/scripts
     networks:
       - devika-subnetwork
-    entrypoint: ["/app/scripts/support_create_project.sh"]
-    
-  nginx:
-    image: nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - devika-backend-engine
+    entrypoint: ["/app/scripts/devika/support_client.sh"]
+
 networks:
   devika-subnetwork:
 

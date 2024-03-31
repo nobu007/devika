@@ -1,7 +1,7 @@
 
 .PHONY = setup deps compose-up compose-down compose-destroy
 
-# to check if docker is installed on the machine 
+# to check if docker is installed on the machine
 DOCKER := $(shell command -v docker)
 DOCKER_COMPOSE := $(shell command -v docker-compose)
 deps:
@@ -41,3 +41,15 @@ compose-up-opendevin-test: deps
 compose-destroy-opendevin: deps
 	docker images | grep -i opendevin | awk '{print $$3}' | xargs docker rmi -f
 	docker volume prune
+
+compose-up-plandex: deps
+	docker-compose -f docker-compose-plandex.yaml up --build --remove-orphans
+
+compose-up-plandex-test: deps
+	docker-compose -f docker-compose-plandex.yaml up --build --remove-orphans plandex-test
+
+compose-down-plandex: deps
+	docker-compose -f docker-compose-plandex.yaml down
+
+compose-down-opendevin: deps
+	docker-compose -f docker-compose-opendevin.yaml down
