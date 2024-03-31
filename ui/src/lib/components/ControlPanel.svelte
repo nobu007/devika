@@ -5,14 +5,30 @@
   import Seperator from "./ui/Seperator.svelte";
 
   function selectProject(project) {
+<<<<<<< HEAD
     $selectedProject = project;
+=======
+    console.log("selectProject project=", project);
+    if (project === null || project === "") {
+      return;
+    }
+    selectedProject = project;
+    localStorage.setItem("selectedProject", project);
+>>>>>>> 295ea97 (fix: update for easy start)
     fetchMessages();
     fetchAgentState();
     fetchProjectFiles();
     document.getElementById("project-dropdown").classList.add("hidden");
   }
   function selectModel(model) {
+<<<<<<< HEAD
     $selectedModel = model;
+=======
+    // selectedModel = `${model[0]}`;
+    // localStorage.setItem("selectedModel", model[1]);
+    selectedModel = model;
+    localStorage.setItem("selectedModel", model);
+>>>>>>> 295ea97 (fix: update for easy start)
     document.getElementById("model-dropdown").classList.add("hidden");
   }
   function selectSearchEngine(searchEngine) {
@@ -84,7 +100,6 @@
       document.removeEventListener("click", closeDropdowns);
     };
   });
-  
 </script>
 
 <div class="control-panel border-b border-border bg-background pb-3">
@@ -224,15 +239,24 @@
                   >{modelName.toLowerCase()}</span
                 >
                 <div class="flex flex-col gap-[1px] px-6 w-full">
-                  {#each modelItems as models}
+                  {#each modelItems as model}
                     <button
+<<<<<<< HEAD
                       class="relative nav-button flex text-start text-sm text-clip hover:bg-black/20 px-2 py-1.5 rounded-md transition-colors 
                       {selectedModel == models[0] ? 'bg-gray-300': ''}"
                       on:click|preventDefault={() => selectModel(models[0])}
+=======
+                      class="relative nav-button flex text-start text-sm text-clip hover:bg-gray-300 px-2 py-1 rounded-md
+                      transition-colors {selectedModel == `${model}` ||
+                      selectedModel == model
+                        ? 'bg-gray-300'
+                        : ''}"
+                      on:click|preventDefault={() => selectModel(model)}
+>>>>>>> 295ea97 (fix: update for easy start)
                     >
-                      {models[0]}
+                      {model}
                       <span class="tooltip text-[10px] px-2 text-gray-500"
-                        >{models[1]}</span
+                        >{model}</span
                       >
                     </button>
                   {/each}

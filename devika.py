@@ -118,6 +118,10 @@ def get_agent_state():
     project_name = data.get("project_name")
     agent_state = AgentState.get_latest_state(project_name)
     return jsonify({"state": agent_state})
+    thread = Thread(target=lambda: Agent(base_model=base_model).execute(prompt, project_name, web_search))
+    thread.start()
+
+    return jsonify({"message": "Started Devika Agent"})
 
 
 @app.route("/api/get-project-files/", methods=["GET"])
