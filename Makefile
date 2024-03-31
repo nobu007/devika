@@ -31,3 +31,22 @@ compose-up: deps compose-down
 compose-destroy: deps
 	docker images | grep -i devika | awk '{print $$3}' | xargs docker rmi -f
 	docker volume prune
+
+compose-up-opendevin: deps
+	docker-compose -f docker-compose-opendevin.yaml up --build --remove-orphans
+
+compose-up-opendevin-test: deps
+	docker-compose -f docker-compose-opendevin.yaml up --build --remove-orphans opendevin-test
+
+compose-up-plandex: deps
+	docker-compose -f docker-compose-plandex.yaml up --build --remove-orphans
+
+compose-up-plandex-test: deps
+	docker-compose -f docker-compose-plandex.yaml up --build --remove-orphans plandex-test
+
+
+compose-down-plandex: deps
+	docker-compose -f docker-compose-plandex.yaml down
+
+compose-down-opendevin: deps
+	docker-compose -f docker-compose-opendevin.yaml down
