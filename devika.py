@@ -3,8 +3,10 @@
     AS IT MAY CAUSE IMPORT ERRORS AND OTHER ISSUES
 """
 from gevent import monkey
+
 monkey.patch_all()
 from src.init import init_devika
+
 init_devika()
 
 
@@ -46,7 +48,7 @@ logger = Logger()
 
 
 # initial socket
-@socketio.on('socket_connect')
+@socketio.on("socket_connect")
 def test_connect(data):
     print("Socket connected :: ", data)
     emit_agent("socket_response", {"data": "Server Connected"})
@@ -70,7 +72,7 @@ def get_messages():
 
 
 # Main socket
-@socketio.on('user-message')
+@socketio.on("user-message")
 def handle_message(data):
     logger.info(f"User message: {data}")
     message = data.get('message')
@@ -97,6 +99,10 @@ def handle_message(data):
             else:
                 thread = Thread(target=lambda: agent.subsequent_execute(message, project_name))
                 thread.start()
+                
+    # 受信したイベントを他のクライアントにブロードキャスト
+    # socketio.emit("user-message", data, broadcast=True)
+    emit_agent("user-message", data)
 
 @app.route("/api/is-agent-active", methods=["POST"])
 @route_logger(logger)

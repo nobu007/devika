@@ -2,13 +2,18 @@ version: "3.9"
 
 services:
   ollama-service:
+    container_name: ollama
     image: ollama/ollama:latest
     expose:
       - 11434
     ports:
       - 11434:11434
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:11434/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "apt install curl && curl -f http://localhost:11434/ || exit 1",
+        ]
       interval: 5s
       timeout: 30s
       retries: 5
@@ -16,7 +21,8 @@ services:
     networks:
       - devika-subnetwork
 
-  devika-backend-engine:
+  devika-backend:
+    container_name: devika-backend
     build:
       context: .
       dockerfile: devika.dockerfile
@@ -27,32 +33,54 @@ services:
     ports:
       - 1337:1337
     environment:
-      - OLLAMA_HOST=http://ollama-service:11434
+      - OLLAMA_HOST=http://ollama:11434
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:1337/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "echo 'healthcheck' && apt install curl && curl -f http://localhost:1337/ || exit 1",
+        ]
       interval: 5s
       timeout: 30s
       retries: 5
       start_period: 30s
     volumes:
       - devika-backend-dbstore:/home/nonroot/devika/db
+      - ./data:/app/data
+      - ./scripts:/app/scripts
     networks:
       - devika-subnetwork
+    entrypoint: ["/app/scripts/devika/startup_devica_backend.sh"]
 
-  devika-frontend-app:
+  devika-frontend:
+    container_name: devika-frontend
     build:
       context: .
       dockerfile: app.dockerfile
       args:
-        - VITE_API_BASE_URL=http://127.0.0.1:1337
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     depends_on:
-      - devika-backend-engine
+      - devika-backend
     expose:
       - 3000
     ports:
       - 3000:3000
+    volumes:
+      - devika-backend-dbstore:/home/nonroot/devika/db
     networks:
       - devika-subnetwork
+
+  devika-support:
+    container_name: devika-support
+    image: devika_devika-backend:latest
+    depends_on:
+      - devika-backend
+      - devika-frontend
+    volumes:
+      - ./scripts:/app/scripts
+    networks:
+      - devika-subnetwork
+    entrypoint: ["/app/scripts/devika/support_client.sh"]
 
 networks:
   devika-subnetwork:
