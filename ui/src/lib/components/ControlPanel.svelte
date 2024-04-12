@@ -1,7 +1,21 @@
 <script>
   import { onMount } from "svelte";
-  import { projectList, modelList, internet, tokenUsage, agentState, messages, searchEngineList} from "$lib/store";
-  import { createProject, fetchMessages, fetchInitialData, deleteProject, fetchAgentState} from "$lib/api";
+  import {
+    projectList,
+    modelList,
+    internet,
+    tokenUsage,
+    agentState,
+    messages,
+    searchEngineList,
+  } from "$lib/store";
+  import {
+    createProject,
+    fetchMessages,
+    fetchInitialData,
+    deleteProject,
+    fetchAgentState,
+  } from "$lib/api";
   import { get } from "svelte/store";
 
   let selectedProject;
@@ -18,10 +32,24 @@
     }
   };
 
-  selectedProject = checkListAndSetItem( projectList, "selectedProject", "Select Project");
-  selectedModel = checkListAndSetItem( modelList, "selectedModel", "Select Model");
-  selectedSearchEngine = checkListAndSetItem( searchEngineList, "selectedSearchEngine", "Select Search Engine");
-
+  selectedProject = checkListAndSetItem(
+    projectList,
+    "selectedProject",
+    "Select Project"
+  );
+  selectedModel = checkListAndSetItem(
+    modelList,
+    "selectedModel",
+    "Select Model"
+  );
+  selectedSearchEngine = checkListAndSetItem(
+    searchEngineList,
+    "selectedSearchEngine",
+    "Select Search Engine"
+  );
+  if (projectList.length > 0) {
+    selectProject(projectList[0]);
+  }
 
   function selectProject(project) {
     selectedProject = project;
@@ -42,7 +70,7 @@
   }
 
   async function createNewProject() {
-    const projectName = prompt('Enter the project name:');
+    const projectName = prompt("Enter the project name:");
     if (projectName) {
       await createProject(projectName);
       selectProject(projectName);
@@ -92,7 +120,6 @@
       document.removeEventListener("click", closeDropdowns);
     };
   });
-  
 </script>
 
 <div class="control-panel">
@@ -126,7 +153,8 @@
         {#if $projectList !== null}
           {#each $projectList as project}
             <div
-              class="flex items-center px-4 hover:bg-gray-200 transition-colors">
+              class="flex items-center px-4 hover:bg-gray-200 transition-colors"
+            >
               <button
                 href="#"
                 class="flex gap-2 items-center text-sm py-3 w-full h-full overflow-x-visible"

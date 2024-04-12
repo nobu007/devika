@@ -26,6 +26,7 @@ services:
     build:
       context: .
       dockerfile: devika.dockerfile
+    image: devika-backend
     depends_on:
       - ollama-service
     expose:

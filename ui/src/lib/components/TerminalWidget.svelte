@@ -11,8 +11,8 @@
   // });
 
   onMount(async () => {
-    let xterm = await import('xterm');
-    let xtermAddonFit = await import('xterm-addon-fit')
+    let xterm = await import("xterm");
+    let xtermAddonFit = await import("xterm-addon-fit");
 
     terminal = new xterm.Terminal({
       disableStdin: true,
@@ -31,40 +31,42 @@
     terminal.open(terminalElement);
     fitAddon.fit();
 
-    let previousState = {};
+    agentState.subscribe((states) => {
+      console.log("agentState states", states);
 
-    agentState.subscribe((state) => {
-      if (state && state.terminal_session) {
-        let command = state.terminal_session.command || 'echo "Waiting..."';
-        let output = state.terminal_session.output || "Waiting...";
-        let title = state.terminal_session.title || "Terminal";
-
-        // Check if the current state is different from the previous state
-        if (
-          command !== previousState.command ||
-          output !== previousState.output ||
-          title !== previousState.title
-        ) {
-          addCommandAndOutput(command, output, title);
-
-          // Update the previous state
-          previousState = { command, output, title };
-        }
-      }
-      else {
-        // Reset the terminal
+      if (states && states.terminal_session && states.terminal_session.command) {
         terminal.reset();
+        const { command, output, title } = states.terminal_session;
+        addCommandAndOutput(command, output, title);
       }
+
+      // Find the last state with a non-null terminal_session
+      // const lastStateWithTerminalSession = states
+      //   .slice()
+      //   .reverse()
+      //   .find(
+      //     (state) => state.terminal_session && state.terminal_session.command
+      //   );
+
+      // if (lastStateWithTerminalSession) {
+      //   const { command, output, title } =
+      //     lastStateWithTerminalSession.terminal_session;
+      //   addCommandAndOutput(command, output, title);
+      // } else {
+      //   terminal.write("Waiting...\r\n");
+      // }
 
       fitAddon.fit();
     });
   });
 
   function addCommandAndOutput(command, output, title) {
+    terminal.write(`\x1b[2J\x1b[0;0H`); // Clear the terminal
     if (title) {
-      document.getElementById("terminal-title").innerText = title;
+      terminal.write(`${title}\r\n`);
+      // document.getElementById("terminal-title").innerText = title;
     }
-    terminal.reset();
+    // terminal.reset();
     terminal.write(`$ ${command}\r\n\r\n${output}\r\n`);
   }
 </script>
@@ -80,7 +82,7 @@
   </div>
   <div
     id="terminal-content"
-    class="h-full w-full rounded-bl-lg "
+    class="h-full w-full rounded-bl-lg"
     bind:this={terminalElement}
   ></div>
 </div>
@@ -95,5 +97,4 @@
     overflow-y: auto !important;
     height: 100%;
   }
-  
 </style>
